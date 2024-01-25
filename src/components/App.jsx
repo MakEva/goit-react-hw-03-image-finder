@@ -1,12 +1,11 @@
 import { Component } from 'react';
 import { Searchbar } from './Searchbar';
-// import { Modal } from './Modal';
+import { Modal } from './Modal';
 import { Button } from './Button';
-// import { Loader } from './Loader';
+import { Loader } from './Loader';
 import { ImageGallery } from './ImageGallery/ImageGallery';
 import { searchImage } from '../api/image';
 
-// const per_page = 12;
 export class App extends Component {
   state = {
     search: '',
@@ -14,6 +13,8 @@ export class App extends Component {
     page: 1,
     loading: false,
     error: null,
+    modalImage: '',
+    openModal: false,
   };
 
   async componentDidUpdate(prevProps, prevState) {
@@ -24,8 +25,8 @@ export class App extends Component {
       });
       try {
         const { data } = await searchImage(search, page);
-        this.setState(({ search }) => ({
-          images: data.hits?.length ? [...search, ...data.hits] : search,
+        this.setState(({ images }) => ({
+          images: data.hits?.length ? [...images, ...data.hits] : images,
         }));
       } catch (error) {
         this.setState({
@@ -50,20 +51,39 @@ export class App extends Component {
   loadMore = () => {
     this.setState(({ page }) => ({ page: page + 1 }));
   };
+
+  showModal = ({ largeImageURL }) => {
+    this.setState({
+      openModal: true,
+      modalImage: largeImageURL,
+    });
+  };
+
+  closeModal = () => {
+    this.setState({
+      openModal: false,
+      modalImage: '',
+    });
+  };
+
   render() {
-    const { handleSearch, loadMore } = this;
-    const { images, loading } = this.state;
+    const { handleSearch, loadMore, showModal, closeModal } = this;
+    const { images, loading, modalImage, openModal } = this.state;
 
     const isImage = Boolean(images.length);
+    const isMoreImages = Boolean(images.length % 12 === 0);
 
     return (
       <>
         <Searchbar onSubmit={handleSearch} />
-        {loading && <p>...Loading</p>}
-        {isImage && <ImageGallery items={images} />}
-        {/* <Loader /> */}
-        {isImage && <Button onClick={loadMore} type="button" />}
-        {/* <Modal /> */}
+        {isImage && <ImageGallery showModal={showModal} items={images} />}
+        {loading && <Loader />}
+        {isImage && isMoreImages && <Button onClick={loadMore} type="button" />}
+        {openModal && (
+          <Modal modalImage={modalImage} close={closeModal}>
+            <img src={modalImage} alt="" />
+          </Modal>
+        )}
       </>
     );
   }
