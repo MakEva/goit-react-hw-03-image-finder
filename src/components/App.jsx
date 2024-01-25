@@ -10,7 +10,7 @@ export class App extends Component {
   state = {
     search: '',
     images: [],
-    page: 1,
+    page: 41,
     loading: false,
     error: null,
     modalImage: '',
@@ -19,7 +19,7 @@ export class App extends Component {
 
   async componentDidUpdate(prevProps, prevState) {
     const { search, page } = this.state;
-    if (search && (search !== prevState.search || page !== prevState.page)) {
+    if (search !== prevState.search || page !== prevState.page) {
       this.setState({
         loading: true,
       });
@@ -27,6 +27,7 @@ export class App extends Component {
         const { data } = await searchImage(search, page);
         this.setState(({ images }) => ({
           images: data.hits?.length ? [...images, ...data.hits] : images,
+          hasMoreImages: data.hits?.length > 0,
         }));
       } catch (error) {
         this.setState({
@@ -41,10 +42,13 @@ export class App extends Component {
   }
 
   handleSearch = ({ search }) => {
+    if (this.state.search === search) {
+      return alert(`Ви вже здійснили пошук за  ${search}`);
+    }
     this.setState({
       search,
       images: [],
-      page: 1,
+      page: 41,
     });
   };
 
@@ -71,6 +75,7 @@ export class App extends Component {
     const { images, loading, modalImage, openModal } = this.state;
 
     const isImage = Boolean(images.length);
+
     const isMoreImages = Boolean(images.length % 12 === 0);
 
     return (
@@ -78,7 +83,9 @@ export class App extends Component {
         <Searchbar onSubmit={handleSearch} />
         {isImage && <ImageGallery showModal={showModal} items={images} />}
         {loading && <Loader />}
-        {isImage && isMoreImages && <Button onClick={loadMore} type="button" />}
+        {isImage && isMoreImages && !loading && (
+          <Button onClick={loadMore} type="button" />
+        )}
         {openModal && (
           <Modal modalImage={modalImage} close={closeModal}>
             <img src={modalImage} alt="" />
