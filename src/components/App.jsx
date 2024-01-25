@@ -10,7 +10,7 @@ export class App extends Component {
   state = {
     search: '',
     images: [],
-    page: 41,
+    page: 1,
     loading: false,
     error: null,
     modalImage: '',
@@ -48,7 +48,7 @@ export class App extends Component {
     this.setState({
       search,
       images: [],
-      page: 41,
+      page: 1,
     });
   };
 
