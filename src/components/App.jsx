@@ -15,6 +15,7 @@ export class App extends Component {
     error: null,
     modalImage: '',
     openModal: false,
+    loadMoreBnt: false,
   };
 
   async componentDidUpdate(prevProps, prevState) {
@@ -27,8 +28,15 @@ export class App extends Component {
         const { data } = await searchImage(search, page);
         this.setState(({ images }) => ({
           images: data.hits?.length ? [...images, ...data.hits] : images,
-          hasMoreImages: data.hits?.length > 0,
+          // loadMoreBtn: page < Math.ceil(data.totalHits / 12),
         }));
+
+        // if (page < Math.ceil(data.totalHits / 12)) {
+        //   this.setState({
+        //     loadMoreBnt: true,
+        //   });
+        // }
+        console.log(this.state.loadMoreBnt);
       } catch (error) {
         this.setState({
           error: error.message,
@@ -72,20 +80,18 @@ export class App extends Component {
 
   render() {
     const { handleSearch, loadMore, showModal, closeModal } = this;
-    const { images, loading, modalImage, openModal } = this.state;
+    const { images, loading, modalImage, openModal, loadMoreBnt } = this.state;
 
     const isImage = Boolean(images.length);
 
-    const isMoreImages = Boolean(images.length % 12 === 0);
+    // const isMoreImages = Boolean(images.length % 12 === 0);
 
     return (
       <>
         <Searchbar onSubmit={handleSearch} />
         {isImage && <ImageGallery showModal={showModal} items={images} />}
         {loading && <Loader />}
-        {isImage && isMoreImages && !loading && (
-          <Button onClick={loadMore} type="button" />
-        )}
+        {isImage && !loadMoreBnt && <Button onClick={loadMore} type="button" />}
         {openModal && (
           <Modal modalImage={modalImage} close={closeModal}>
             <img src={modalImage} alt="" />
