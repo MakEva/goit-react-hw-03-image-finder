@@ -10,12 +10,12 @@ export class App extends Component {
   state = {
     search: '',
     images: [],
-    page: 1,
+    page: 40,
     loading: false,
     error: null,
     modalImage: '',
     openModal: false,
-    loadMoreBnt: false,
+    loadMoreBtn: false,
   };
 
   async componentDidUpdate(prevProps, prevState) {
@@ -26,17 +26,15 @@ export class App extends Component {
       });
       try {
         const { data } = await searchImage(search, page);
+        const isMoreImages =
+          data.totalHits > 0 && page < Math.ceil(data.totalHits / 12);
         this.setState(({ images }) => ({
           images: data.hits?.length ? [...images, ...data.hits] : images,
-          // loadMoreBtn: page < Math.ceil(data.totalHits / 12),
+          loadMoreBtn: isMoreImages,
         }));
+        console.log(data.hits);
 
-        // if (page < Math.ceil(data.totalHits / 12)) {
-        //   this.setState({
-        //     loadMoreBnt: true,
-        //   });
-        // }
-        console.log(this.state.loadMoreBnt);
+        console.log(this.state.loadMoreBtn);
       } catch (error) {
         this.setState({
           error: error.message,
@@ -56,7 +54,7 @@ export class App extends Component {
     this.setState({
       search,
       images: [],
-      page: 1,
+      page: 40,
     });
   };
 
@@ -80,18 +78,16 @@ export class App extends Component {
 
   render() {
     const { handleSearch, loadMore, showModal, closeModal } = this;
-    const { images, loading, modalImage, openModal, loadMoreBnt } = this.state;
+    const { images, loading, modalImage, openModal, loadMoreBtn } = this.state;
 
     const isImage = Boolean(images.length);
-
-    // const isMoreImages = Boolean(images.length % 12 === 0);
 
     return (
       <>
         <Searchbar onSubmit={handleSearch} />
         {isImage && <ImageGallery showModal={showModal} items={images} />}
         {loading && <Loader />}
-        {isImage && !loadMoreBnt && <Button onClick={loadMore} type="button" />}
+        {isImage && loadMoreBtn && <Button onClick={loadMore} type="button" />}
         {openModal && (
           <Modal modalImage={modalImage} close={closeModal}>
             <img src={modalImage} alt="" />
@@ -101,3 +97,16 @@ export class App extends Component {
     );
   }
 }
+
+// const isMoreImages = Boolean(images.length % 12 === 0);
+
+// this.steState(prev => ({
+//   images: [...prev.images, ...hits],
+//   loadMore: this.state.page < Math.ceil(totalHits / 12),
+// }));
+
+// if (page < Math.ceil(data.totalHits / 12)) {
+//   this.setState({
+//     loadMoreBnt: true,
+//   });
+// }
