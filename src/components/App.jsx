@@ -10,7 +10,7 @@ export class App extends Component {
   state = {
     search: '',
     images: [],
-    page: 40,
+    page: 1,
     loading: false,
     error: null,
     modalImage: '',
@@ -54,7 +54,7 @@ export class App extends Component {
     this.setState({
       search,
       images: [],
-      page: 40,
+      page: 1,
     });
   };
 
@@ -97,16 +97,3 @@ export class App extends Component {
     );
   }
 }
-
-// const isMoreImages = Boolean(images.length % 12 === 0);
-
-// this.steState(prev => ({
-//   images: [...prev.images, ...hits],
-//   loadMore: this.state.page < Math.ceil(totalHits / 12),
-// }));
-
-// if (page < Math.ceil(data.totalHits / 12)) {
-//   this.setState({
-//     loadMoreBnt: true,
-//   });
-// }
